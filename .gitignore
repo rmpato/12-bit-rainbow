@@ -1,0 +1,15 @@
+# Packaged extension
+*.vsix
+
+# Node / tooling
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.npm/
+
+# Editor and OS cruft
+.vscode-test/
+.DS_Store
+Thumbs.db
+*.swp
+*~

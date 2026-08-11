@@ -1,0 +1,30 @@
+{
+  "name": "twelve-bit-rainbow",
+  "displayName": "12-bit Rainbow",
+  "description": "A dark VS Code theme ported from the Ghostty terminal theme \"12-bit Rainbow\".",
+  "version": "1.0.0",
+  "publisher": "pato",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "keywords": [
+    "theme",
+    "dark",
+    "ghostty",
+    "rainbow",
+    "12-bit"
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "label": "12-bit Rainbow",
+        "uiTheme": "vs-dark",
+        "path": "./themes/12-bit-rainbow-color-theme.json"
+      }
+    ]
+  }
+}
