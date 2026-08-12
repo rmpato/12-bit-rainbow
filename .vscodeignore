@@ -1,7 +1,25 @@
+# What stays out of the .vsix.
+#
+# The published extension is three things: the manifest, the theme file and the
+# icon, plus the README, CHANGELOG and LICENSE that the marketplace renders.
+# Everything used to *develop* the theme is dead weight in every install.
+#
+# Verify with `npx vsce ls`, which prints exactly what would ship.
+
+.git/**
+.github/**
 .gitignore
 .vscodeignore
-.git/**
 .vscode/**
 .vscode-test/**
+
 node_modules/**
+package-lock.json
+
+# The icon is generated from the theme; the generator itself is not needed to
+# use it, only to change it.
+scripts/**
+
+*.vsix
 **/.DS_Store
+Thumbs.db

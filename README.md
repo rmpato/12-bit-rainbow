@@ -1,5 +1,10 @@
 # 12-bit Rainbow for VS Code
 
+[![Marketplace](https://img.shields.io/visual-studio-marketplace/v/pato.twelve-bit-rainbow?label=marketplace)](https://marketplace.visualstudio.com/items?itemName=pato.twelve-bit-rainbow)
+[![Open VSX](https://img.shields.io/open-vsx/v/pato/twelve-bit-rainbow?label=open%20vsx)](https://open-vsx.org/extension/pato/twelve-bit-rainbow)
+[![CI](https://github.com/rmpato/12-bit-rainbow/actions/workflows/ci.yml/badge.svg)](https://github.com/rmpato/12-bit-rainbow/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 A dark theme for VS Code, ported straight from the [Ghostty](https://ghostty.org) terminal theme
 of the same name. Near-black background, saturated accents, and a palette that stays consistent
 between your editor and your terminal.
@@ -9,16 +14,37 @@ integrated terminal, which is mapped color-for-color to the original ANSI palett
 
 ---
 
-## New here? Start with this
+## Install
 
-**1. Install it.** Copy the folder into your editor's extensions directory:
+**In your editor.** `Cmd+Shift+X` (`Ctrl+Shift+X`), search **12-bit Rainbow**, click Install.
+
+**From the command line.**
+
+```sh
+code --install-extension pato.twelve-bit-rainbow
+```
+
+Cursor, VSCodium and Gitpod install from [Open VSX](https://open-vsx.org/extension/pato/twelve-bit-rainbow)
+rather than Microsoft's marketplace. The theme is published to both, so the same search works there.
+
+**Then turn it on.** Press `Cmd+K` then `Cmd+T` (`Ctrl+K Ctrl+T` on Windows/Linux) and pick
+**12-bit Rainbow** from the list.
+
+<details>
+<summary>Installing without a marketplace</summary>
+
+Download the `.vsix` from the [latest release](https://github.com/rmpato/12-bit-rainbow/releases/latest):
+
+```sh
+code --install-extension 12-bit-rainbow.vsix
+```
+
+Or copy the repository into your editor's extensions directory:
 
 ```sh
 git clone https://github.com/rmpato/12-bit-rainbow.git
 cp -R 12-bit-rainbow ~/.vscode/extensions/12-bit-rainbow
 ```
-
-Using Cursor, VSCodium, or Insiders? Swap the destination:
 
 | Editor | Extensions directory |
 |---|---|
@@ -27,15 +53,12 @@ Using Cursor, VSCodium, or Insiders? Swap the destination:
 | Cursor | `~/.cursor/extensions/` |
 | VSCodium | `~/.vscode-oss/extensions/` |
 
-On Windows the path is `%USERPROFILE%\.vscode\extensions\`.
+On Windows the path is `%USERPROFILE%\.vscode\extensions\`. Restart the editor afterwards — a full
+quit-and-reopen is most reliable; `Cmd+Shift+P` → *Developer: Reload Window* usually works too.
 
-**2. Restart your editor.** A full quit-and-reopen is most reliable; `Cmd+Shift+P` →
-*Developer: Reload Window* usually works too.
+</details>
 
-**3. Turn it on.** Press `Cmd+K` then `Cmd+T` (`Ctrl+K Ctrl+T` on Windows/Linux) and pick
-**12-bit Rainbow** from the list.
-
-That's it. If it isn't in the list, see [Troubleshooting](#troubleshooting).
+If the theme isn't in the list, see [Troubleshooting](#troubleshooting).
 
 ---
 
@@ -165,14 +188,52 @@ The file has three sections:
 - `tokenColors` — TextMate scopes, the classic regex-based syntax rules.
 - `semanticTokenColors` — language-server-driven colors, which take priority when available.
 
-To build a shareable `.vsix`:
+Before opening a pull request:
 
 ```sh
-npx @vscode/vsce package
+npm install
+npm run validate    # manifest + theme: malformed hex, unknown fontStyle, missing paths
+npm run package     # validates, then builds a .vsix
+npx vsce ls         # exactly what would ship
 ```
+
+`npm run validate` catches the class of mistake that packages cleanly and then fails silently for
+whoever installed it — VS Code ignores a malformed colour value and falls back to the default
+theme's, which is how one stray panel ends up the wrong blue.
+
+If you change the palette, redraw the icon and commit it:
+
+```sh
+npm run icon        # regenerates assets/icon.png from the theme file
+```
+
+CI fails if the committed icon is not what the generator would produce, so the artwork cannot drift
+away from the theme it advertises.
 
 Pull requests welcome — especially for languages whose highlighting looks flat. Include a before
 and after screenshot if you can.
+
+## Releasing
+
+Versions follow semver, described in [CHANGELOG.md](CHANGELOG.md). To ship one:
+
+1. Move the `Unreleased` entries in `CHANGELOG.md` under the new version.
+2. `npm version minor` (or `patch` / `major`) — this writes `package.json` and creates the tag.
+3. `git push --follow-tags`.
+
+The `v*` tag triggers the release workflow: it validates, checks the tag matches the manifest
+version, packages, publishes to both marketplaces, and attaches the `.vsix` to a GitHub Release.
+
+Two repository secrets control publishing, and each one is optional — a missing token skips that
+marketplace instead of failing the release:
+
+| Secret | Where it comes from |
+|---|---|
+| `VSCE_PAT` | An Azure DevOps personal access token with **Marketplace → Manage** |
+| `OVSX_PAT` | An [Open VSX](https://open-vsx.org) access token |
+
+`workflow_dispatch` runs the same job with publishing off, which is the way to test the pipeline
+without spending a version number.
 
 ---
 

@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Two jobs' worth of work, one job long: for a theme, "does it validate" and
+# "does it package" are the same question asked twice, and splitting them would
+# cost more in runner startup than it saves.
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Validate manifest and theme
+        run: npm run validate
+
+      - name: Check the icon is what the script would draw
+        # Catches an icon edited by hand, or a palette change that never made it
+        # into the artwork. Compares decoded pixels rather than file bytes,
+        # because zlib output is not identical across versions and a byte
+        # comparison would fail here for a reason that has nothing to do with
+        # the image.
+        run: python3 scripts/make-icon.py --check
+
+      - name: Package
+        run: npx vsce package --out 12-bit-rainbow.vsix
+
+      - name: Show what shipped
+        # A theme VSIX has no business being large. Printing the contents makes
+        # an accidental inclusion obvious in the log rather than after release.
+        run: npx vsce ls
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vsix
+          path: 12-bit-rainbow.vsix
