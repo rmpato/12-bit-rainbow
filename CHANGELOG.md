@@ -26,6 +26,10 @@ versions follow [semver](https://semver.org). For a theme that means:
   and Open VSX, and attaches the `.vsix` to a GitHub Release.
 - Availability on **Open VSX**, so VSCodium, Cursor and Gitpod can install the
   theme rather than only side-load it.
+- Credit to [Kate Morley](https://iamkate.com/), whose
+  [12-bit rainbow](https://iamkate.com/data/12-bit-rainbow/) is the palette every
+  colour here descends from, and a note on how those twelve 12-bit hues become
+  the 24-bit values in the theme file.
 
 ## [1.0.0] - 2026-08-10
 

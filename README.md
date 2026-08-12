@@ -75,7 +75,8 @@ If the theme isn't in the list, see [Troubleshooting](#troubleshooting).
 
 ### The palette
 
-Every color below comes from the original Ghostty theme file. Nothing was invented.
+Every color below comes from the original Ghostty theme file. Nothing was invented — and the
+Ghostty theme did not invent them either. See [where the colors come from](#where-the-colors-come-from).
 
 | Role | Color | | Role | Color | |
 |---|---|---|---|---|---|
@@ -93,6 +94,37 @@ Every color below comes from the original Ghostty theme file. Nothing was invent
 The one addition: three near-black shades derived from the background (`#0a0908`, `#131110`,
 `#1d1919`) separate the sidebar, inputs, and borders from the editor. A single flat `#040404`
 everywhere leaves the UI with no visible edges.
+
+### Where the colors come from
+
+The hues are the **[12-bit rainbow](https://iamkate.com/data/12-bit-rainbow/) by
+[Kate Morley](https://iamkate.com/)** — twelve colors from the 12-bit RGB space, designed for
+[National Grid: Live](https://grid.iamkate.com/) and balanced so that luminance, chroma and hue
+step evenly. That balance is the reason this palette stays legible where a naive RGB rainbow does
+not: an ordinary `#f00 #0f0 #00f` set swings wildly in brightness, so some hues vanish against a
+near-black background while others glare.
+
+Each 4-bit channel becomes 8-bit by appending a zero — `#a35` → `#a03050` — rather than by the
+usual CSS doubling (`#aa3355`). Eleven of the twelve survive that trip into the terminal palette
+exactly:
+
+| 12-bit | Expanded | ANSI slot | | 12-bit | Expanded | ANSI slot |
+|---|---|---|---|---|---|---|
+| `#a35` | `#a03050` | red | | `#4d8` | `#40d080` | green |
+| `#c66` | `#c06060` | bright red | | `#9d5` | `#90d050` | bright green |
+| `#e94` | `#e09040` | yellow | | `#0bc` | `#00b0c0` | bright blue |
+| `#ed0` | `#e0d000` | bright yellow | | `#09c` | `#0090c0` | cyan |
+| `#36b` | `#3060b0` | blue | | `#639` | `#603090` | magenta |
+| `#817` | `#801070` | bright magenta | | | | |
+
+The twelfth, `#2cb`, would expand to `#20c0b0`. Bright cyan is `#20b0c0` instead — the two middle
+channels transposed, somewhere upstream of this port. It is a two-nibble difference nobody would
+notice by eye, and it is preserved here rather than corrected, because the point of this extension
+is to match Ghostty exactly. Fixing it would make the editor disagree with the terminal, which is
+the one thing the theme exists to prevent.
+
+Kate Morley's work is [CC0](https://iamkate.com/ideas/free-content/) — public domain, attribution
+not required. It is given here because credit is worth more than the licence demands.
 
 ### How code gets colored
 
@@ -239,10 +271,20 @@ without spending a version number.
 
 ## Credits
 
-The palette is from the **12-bit Rainbow** theme bundled with
-[Ghostty](https://github.com/ghostty-org/ghostty), which sources its theme collection from
-[iTerm2-Color-Schemes](https://github.com/mbadolato/iTerm2-Color-Schemes). This repository is only
-the VS Code port.
+The colors are not mine, and they are not Ghostty's either. The chain, oldest first:
+
+- **[Kate Morley](https://iamkate.com/)** designed the
+  [12-bit rainbow](https://iamkate.com/data/12-bit-rainbow/) — the twelve hues everything here is
+  built from, balanced for even luminance, chroma and hue. Released as
+  [CC0](https://iamkate.com/ideas/free-content/); credited because it should be, not because the
+  licence asks.
+- **[iTerm2-Color-Schemes](https://github.com/mbadolato/iTerm2-Color-Schemes)** carries the
+  terminal adaptation, which maps those hues onto the 16 ANSI slots.
+- **[Ghostty](https://github.com/ghostty-org/ghostty)** bundles that scheme as **12-bit Rainbow**,
+  which is the file this port was read from.
+
+This repository is only the VS Code port: the ANSI mapping, 316 workbench colors, and the token
+rules that decide which hue a keyword gets.
 
 ## License
 

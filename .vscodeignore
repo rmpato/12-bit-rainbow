@@ -20,6 +20,10 @@ package-lock.json
 # use it, only to change it.
 scripts/**
 
+# Repository planning. The marketplace renders README and CHANGELOG; this one is
+# for whoever is working on the theme.
+TODO.md
+
 *.vsix
 **/.DS_Store
 Thumbs.db
