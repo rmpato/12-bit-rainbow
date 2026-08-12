@@ -1,0 +1,82 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Build and attach the VSIX, but publish to neither marketplace"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write # Creating the GitHub Release and attaching the VSIX.
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    # Job level, not step level: a step's own `env:` block is not visible to
+    # that step's `if:`, so the "skip when the token is missing" guards below
+    # would evaluate against an empty string and never run.
+    env:
+      VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      OVSX_PAT: ${{ secrets.OVSX_PAT }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run validate
+
+      - name: Check the tag matches package.json
+        # Publishing v1.1.0 from a manifest that says 1.0.0 produces a release
+        # whose marketplace version silently disagrees with its git tag, and the
+        # marketplace will not let you re-publish that version to fix it.
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          manifest="$(node -p "require('./package.json').version")"
+          if [ "$tag" != "$manifest" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match package.json version $manifest"
+            exit 1
+          fi
+
+      - name: Package
+        run: npx vsce package --out 12-bit-rainbow.vsix
+
+      # Each publish is skipped rather than failed when its token is absent, so
+      # you can ship to one marketplace before you have credentials for the
+      # other — and a first release does not fail on a secret you have not set.
+      - name: Publish to the Visual Studio Marketplace
+        if: ${{ !inputs.dry_run && env.VSCE_PAT != '' }}
+        run: npx vsce publish --packagePath 12-bit-rainbow.vsix
+
+      - name: Publish to Open VSX
+        # VSCodium, Cursor and Gitpod install from here, not from Microsoft's
+        # marketplace. The README tells those users the theme exists; this is
+        # what makes it installable for them.
+        if: ${{ !inputs.dry_run && env.OVSX_PAT != '' }}
+        run: npx ovsx publish 12-bit-rainbow.vsix --pat "$OVSX_PAT"
+
+      - name: GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: 12-bit-rainbow.vsix
+          generate_release_notes: true
+          # The VSIX on the release is the fallback install path for anyone
+          # whose editor cannot reach either marketplace.
+          body: |
+            Install from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=pato.twelve-bit-rainbow),
+            from [Open VSX](https://open-vsx.org/extension/pato/twelve-bit-rainbow),
+            or download the `.vsix` below and run:
+
+            ```sh
+            code --install-extension 12-bit-rainbow.vsix
+            ```

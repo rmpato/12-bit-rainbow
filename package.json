@@ -5,6 +5,19 @@
   "version": "1.0.0",
   "publisher": "pato",
   "license": "MIT",
+  "icon": "assets/icon.png",
+  "galleryBanner": {
+    "color": "#040404",
+    "theme": "dark"
+  },
+  "homepage": "https://github.com/rmpato/12-bit-rainbow#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rmpato/12-bit-rainbow.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rmpato/12-bit-rainbow/issues"
+  },
   "engines": {
     "vscode": "^1.70.0"
   },
@@ -26,5 +39,16 @@
         "path": "./themes/12-bit-rainbow-color-theme.json"
       }
     ]
+  },
+  "scripts": {
+    "validate": "node scripts/validate.mjs",
+    "icon": "python3 scripts/make-icon.py",
+    "package": "npm run validate && vsce package",
+    "publish:vsce": "vsce publish",
+    "publish:ovsx": "ovsx publish"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "^3.6.0",
+    "ovsx": "^0.10.1"
   }
 }
